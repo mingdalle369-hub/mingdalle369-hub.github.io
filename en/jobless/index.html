@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funemployed Animal Test — What Kind of Jobless Are You?</title>
+<meta name="description" content="12 quick questions to find your funemployment spirit animal! From the productivity-machine Bee to the ultimate-relaxation Sloth — plus jobless-buddy compatibility.">
+<meta property="og:title" content="Funemployed Animal Test 🦥">
+<meta property="og:description" content="What kind of jobless are you? 12 questions, 8 animals, jobless-buddy compatibility included!">
+<meta property="og:type" content="website">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #F3F7F0;
+    --card: #FFFFFF;
+    --ink: #2F3A2C;
+    --sub: #7C8A74;
+    --accent: #5FA75F;
+    --accent-soft: #DDEDD8;
+    --line: #E2ECDC;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+  }
+  .app {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+  }
+  .lang {
+    position: absolute; top: 18px; right: 20px;
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-decoration: none; border: 1.5px solid var(--line);
+    padding: 4px 10px; border-radius: 99px; background: var(--card);
+  }
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  .intro { text-align: center; justify-content: center; }
+  .intro .paws {
+    font-size: 15px; letter-spacing: 8px; color: var(--accent); margin-bottom: 18px;
+  }
+  .intro .zoo {
+    font-size: 52px; line-height: 1.25; margin-bottom: 8px;
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  .intro h1 {
+    font-size: 27px; font-weight: 800; letter-spacing: -0.5px; margin: 14px 0 10px;
+  }
+  .intro h1 .hl { color: var(--accent); }
+  .intro p.desc { color: var(--sub); font-size: 15px; margin-bottom: 34px; }
+  .btn {
+    display: block; width: 100%; border: none; cursor: pointer;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 17px; font-weight: 700;
+    padding: 17px; border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(95,167,95,.35);
+    transition: transform .12s ease, box-shadow .12s ease;
+    text-decoration: none; text-align: center;
+  }
+  .btn:active { transform: scale(.97); box-shadow: 0 3px 10px rgba(95,167,95,.3); }
+  .btn.ghost {
+    background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--line); box-shadow: none;
+  }
+  .intro .meta { margin-top: 18px; font-size: 13px; color: var(--sub); }
+
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .qcount { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .track { flex: 1; height: 8px; background: var(--accent-soft); border-radius: 99px; overflow: hidden; }
+  .fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .35s ease; }
+  .qemoji { font-size: 40px; text-align: center; margin-bottom: 14px; }
+  .qtext {
+    font-size: 21px; font-weight: 800; text-align: center;
+    letter-spacing: -0.4px; margin-bottom: 34px; white-space: pre-line;
+  }
+  .opt {
+    display: block; width: 100%; cursor: pointer;
+    background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 16px;
+    font-family: inherit; font-size: 15.5px; font-weight: 600;
+    padding: 18px 20px; margin-bottom: 14px; text-align: left;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .opt:active { transform: scale(.97); border-color: var(--accent); background: var(--accent-soft); }
+
+  .result-card {
+    background: var(--card); border-radius: 24px; padding: 34px 26px 28px;
+    text-align: center; border: 1.5px solid var(--line);
+    box-shadow: 0 10px 30px rgba(47,58,44,.06);
+  }
+  .r-label { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 2px; margin-bottom: 14px; }
+  .r-emoji { font-size: 78px; line-height: 1; margin-bottom: 6px; }
+  .r-name { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .r-nick { font-size: 15px; color: var(--accent); font-weight: 700; margin-bottom: 20px; }
+  .r-desc { font-size: 15px; color: var(--ink); text-align: left; white-space: pre-line; margin-bottom: 22px; }
+  .r-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .r-tags span {
+    background: var(--accent-soft); color: #3E7A3E;
+    font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px;
+  }
+  .chemi { display: flex; gap: 12px; margin-bottom: 6px; }
+  .chemi > div {
+    flex: 1; background: var(--bg); border-radius: 16px; padding: 16px 10px;
+    border: 1.5px solid var(--line);
+  }
+  .chemi .t { font-size: 12.5px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
+  .chemi .e { font-size: 30px; }
+  .chemi .n { font-size: 13.5px; font-weight: 700; margin-top: 4px; }
+  .actions { margin-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; font-size: 14px; font-weight: 600;
+    padding: 12px 22px; border-radius: 99px; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer { margin-top: 40px; text-align: center; font-size: 12px; color: var(--sub); }
+  /* AD SLOT: insert AdSense unit below result card after approval */
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="lang" href="../../jobless/">🇰🇷 한국어</a>
+
+  <!-- Intro -->
+  <section class="screen intro active" id="intro">
+    <div class="paws">💤 💤 💤</div>
+    <div class="zoo">🐝 🐧 🦋<br>🐨 🦝 🦥</div>
+    <h1>What kind of <span class="hl">jobless</span><br>are you?</h1>
+    <p class="desc">12 questions to find your funemployment spirit animal.<br>Compare with your jobless buddies!</p>
+    <button class="btn" onclick="startTest()">Start the test</button>
+    <div class="meta">⏱ Takes 1 minute · 12 questions</div>
+  </section>
+
+  <!-- Quiz -->
+  <section class="screen" id="quiz">
+    <div class="topbar">
+      <div class="qcount" id="qcount">1 / 12</div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <div class="qemoji" id="qemoji"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </section>
+
+  <!-- Result -->
+  <section class="screen" id="result">
+    <div class="result-card">
+      <div class="r-label">MY JOBLESS ANIMAL</div>
+      <div class="r-emoji" id="r-emoji"></div>
+      <div class="r-name" id="r-name"></div>
+      <div class="r-nick" id="r-nick"></div>
+      <div class="r-desc" id="r-desc"></div>
+      <div class="r-tags" id="r-tags"></div>
+      <div class="chemi">
+        <div>
+          <div class="t">💚 Best jobless buddy</div>
+          <div class="e" id="good-e"></div>
+          <div class="n" id="good-n"></div>
+        </div>
+        <div>
+          <div class="t">💥 Doomed duo</div>
+          <div class="e" id="bad-e"></div>
+          <div class="n" id="bad-n"></div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="shareResult()">Share my result 💤</button>
+      <a class="btn ghost" href="../">🐾 Next test: What animal are you at work?</a>
+      <button class="btn ghost" onclick="location.reload()">Try again</button>
+    </div>
+  </section>
+
+  <footer>© 2026 Office Zoo · Just for fun!</footer>
+</div>
+<div class="toast" id="toast">Link copied! Send it to a jobless buddy 💤</div>
+
+<script>
+// Axes: [0] out/home · [1] hustle/rest · [2] structure/flow
+const QUESTIONS = [
+  { e:"🌤️", t:"You wake up at 11 AM.\nWhat's the move?", axis:0,
+    o:[{t:"Shower first. I'm going OUT today.", v:1},
+       {t:"Grab my phone without leaving the bed", v:0}] },
+  { e:"📱", t:"A friend texts: \"Come out RIGHT NOW!\"", axis:0,
+    o:[{t:"Okay, out the door in 30 minutes", v:1},
+       {t:"\"Let's do next week!\" (I'm not going)", v:0}] },
+  { e:"🍚", t:"Your meals these days are mostly…", axis:0,
+    o:[{t:"Eating out, meeting whoever's free", v:1},
+       {t:"Delivery apps or raiding the fridge", v:0}] },
+  { e:"🛋️", t:"One week into joblessness,\nwhat do you actually miss?", axis:0,
+    o:[{t:"Being around people all day", v:1},
+       {t:"Miss? Nothing. This is peak life.", v:0}] },
+  { e:"🔥", t:"Newly jobless — your honest inner voice?", axis:1,
+    o:[{t:"I should learn something with this time", v:1},
+       {t:"FINALLY. I will be doing nothing.", v:0}] },
+  { e:"📺", t:"Your YouTube algorithm is showing…", axis:1,
+    o:[{t:"Productivity, side hustles, 5AM routines", v:1},
+       {t:"Mukbang, memes, cat videos", v:0}] },
+  { e:"💳", t:"You check your bank balance and…", axis:1,
+    o:[{t:"Panic → immediately start researching options", v:1},
+       {t:"Eh… it'll work itself out~", v:0}] },
+  { e:"🗣️", t:"Someone asks \"so what do you do?\"", axis:1,
+    o:[{t:"\"I'm working on something\" (I actually am)", v:1},
+       {t:"\"Just resting!\" — said with full confidence", v:0}] },
+  { e:"⏰", t:"Your daily jobless schedule is…", axis:2,
+    o:[{t:"I have an actual routine, thank you", v:1},
+       {t:"Whatever the vibe decides", v:0}] },
+  { e:"🔔", t:"What about alarms?", axis:2,
+    o:[{t:"Still set every day. Old habits.", v:1},
+       {t:"Alarms? Never heard of her.", v:0}] },
+  { e:"🧭", t:"Your next move (job, career change)?", axis:2,
+    o:[{t:"There's a rough plan in place", v:1},
+       {t:"I'll know when it's time", v:0}] },
+  { e:"🧊", t:"The state of your fridge right now?", axis:2,
+    o:[{t:"Groceried and organized, actually", v:1},
+       {t:"The delivery app IS my fridge", v:0}] },
+];
+
+const RESULTS = {
+  // key: out/home + hustle/rest + structure/flow (1 = first)
+  "111": { emoji:"🐝", name:"Bee", nick:"The Productivity Machine (Minus the Job)",
+    desc:"5AM club, gym, study café — attendance perfect.\nYou don't have a job, yet you're busier than everyone who does.\nFriendly reminder: this time exists for RESTING. Try it once.",
+    tags:["#5AMClub","#StudyCafeVIP","#JoblessOnPaperOnly"],
+    good:"011", bad:"000" },
+  "110": { emoji:"🐬", name:"Dolphin", nick:"Chaotic Good Energy",
+    desc:"Monday: river run. Tuesday: pottery class. Wednesday: hiking.\nZero plan, maximum enthusiasm.\nYour bank account is nervous, but your memories are RICH.",
+    tags:["#WhatsToday","#OneDayClassCollector","#MemoryMillionaire"],
+    good:"100", bad:"001" },
+  "101": { emoji:"🐧", name:"Penguin", nick:"Neighborhood Routine Master",
+    desc:"Same walk, same time, same café, every single day.\nThe barista knows your order AND your life story.\nNo goals, perfect routine — peak peaceful joblessness.",
+    tags:["#RegularsClub","#WalkMaster","#LocalLegend"],
+    good:"001", bad:"010" },
+  "100": { emoji:"🦋", name:"Butterfly", nick:"The Free Spirit",
+    desc:"Wherever the wind takes you.\nYesterday you saw the ocean; today, who knows?\nWallet: light. Soul: millionaire.",
+    tags:["#SpontaneousTrip","#SoulMillionaire","#WindPowered"],
+    good:"110", bad:"111" },
+  "011": { emoji:"🦫", name:"Beaver", nick:"The Homebody Builder",
+    desc:"Online courses, certifications, a side project — all from your room.\nYou're quietly building your future, brick by brick.\nFully prepared to go outside. Choosing not to.",
+    tags:["#OnlineCourseHoarder","#RoomBuildup","#HomeIsBest"],
+    good:"111", bad:"100" },
+  "010": { emoji:"🦝", name:"Raccoon", nick:"The 3AM Visionary",
+    desc:"It's 3AM and you just bought a coding course.\nYour motivation switch only turns on after midnight.\nYour daytime naps shall remain confidential.",
+    tags:["#3AMEnergy","#MidnightCoursePurchase","#NapsAreSacred"],
+    good:"011", bad:"101" },
+  "001": { emoji:"🐨", name:"Koala", nick:"The Structured Rester",
+    desc:"Wake → eat → nap → YouTube → sleep.\nA flawlessly engineered rest routine.\nResting properly takes discipline. You have it.",
+    tags:["#ScheduledNaps","#SeriousAboutRest","#RoutineRester"],
+    good:"101", bad:"110" },
+  "000": { emoji:"🦥", name:"Sloth", nick:"Ultimate Relaxation",
+    desc:"One with the bed. VIP tier on every delivery app.\nYou wear the most peaceful expression known to science.\nAt this point it's not resting — it's an art form.",
+    tags:["#OneWithTheBed","#DeliveryVIP","#ArtOfChill"],
+    good:"100", bad:"111" },
+};
+
+let current = 0;
+const scores = [0, 0, 0];
+const counts = [0, 0, 0];
+
+function startTest() {
+  document.getElementById("intro").classList.remove("active");
+  document.getElementById("quiz").classList.add("active");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById("qcount").textContent = (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("fill").style.width = (current / QUESTIONS.length * 100) + "%";
+  document.getElementById("qemoji").textContent = q.e;
+  document.getElementById("qtext").textContent = q.t;
+  const box = document.getElementById("opts");
+  box.innerHTML = "";
+  const shuffled = [...q.o].sort(() => Math.random() - 0.5);
+  shuffled.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.textContent = o.t;
+    b.onclick = () => answer(q.axis, o.v);
+    box.appendChild(b);
+  });
+}
+
+function answer(axis, v) {
+  scores[axis] += v;
+  counts[axis]++;
+  current++;
+  if (current < QUESTIONS.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  const key = scores.map((s, i) => (s >= counts[i] / 2 ? "1" : "0")).join("");
+  const r = RESULTS[key];
+  document.getElementById("quiz").classList.remove("active");
+  document.getElementById("result").classList.add("active");
+  document.getElementById("r-emoji").textContent = r.emoji;
+  document.getElementById("r-name").textContent = r.name;
+  document.getElementById("r-nick").textContent = r.nick;
+  document.getElementById("r-desc").textContent = r.desc;
+  const tags = document.getElementById("r-tags");
+  tags.innerHTML = "";
+  r.tags.forEach(t => { const s = document.createElement("span"); s.textContent = t; tags.appendChild(s); });
+  document.getElementById("good-e").textContent = RESULTS[r.good].emoji;
+  document.getElementById("good-n").textContent = RESULTS[r.good].name;
+  document.getElementById("bad-e").textContent = RESULTS[r.bad].emoji;
+  document.getElementById("bad-n").textContent = RESULTS[r.bad].name;
+  window.scrollTo(0, 0);
+}
+
+async function shareResult() {
+  const name = document.getElementById("r-name").textContent;
+  const text = "I'm a " + name + " in my jobless era 💤 What kind of jobless are you?";
+  const url = location.href.split("#")[0];
+  if (navigator.share) {
+    try { await navigator.share({ title: "Funemployed Animal Test", text, url }); return; } catch (e) {}
+  }
+  try {
+    await navigator.clipboard.writeText(text + " " + url);
+    showToast();
+  } catch (e) {
+    prompt("Copy this link and share it!", url);
+  }
+}
+
+function showToast() {
+  const t = document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+</script>
+</body>
+</html>
