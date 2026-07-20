@@ -134,6 +134,15 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   footer { margin-top: 40px; text-align: center; font-size: 12px; color: var(--sub); }
   /* AD SLOT: 애드센스 승인 후 아래 위치에 광고 삽입 (결과 카드 아래가 CTR 최적) */
+  .sheet-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: flex-end; justify-content: center; z-index: 50; }
+  .sheet-mask.show { display: flex; }
+  .sheet { background: var(--card); width: 100%; max-width: 440px; border-radius: 24px 24px 0 0; padding: 22px 20px 30px; animation: rise .25s ease; }
+  @keyframes rise { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .sheet h3 { font-size: 16px; font-weight: 800; text-align: center; margin-bottom: 18px; }
+  .sheet .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .s-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 11.5px; color: var(--sub); font-weight: 600; padding: 0; }
+  .s-btn .ico { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--bg); border: 1.5px solid var(--line); transition: transform .12s ease; }
+  .s-btn:active .ico { transform: scale(.92); }
 </style>
 </head>
 <body>
@@ -192,6 +201,21 @@
   </section>
 
   <footer>© 2026 오피스 동물원 · 재미로 보는 테스트예요!</footer>
+</div>
+<div class="sheet-mask" id="sheet" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <h3>결과 공유하기 🐾</h3>
+    <div class="grid">
+      <button class="s-btn" onclick="shareTo('twitter')"><span class="ico">🐦</span>X(트위터)</button>
+      <button class="s-btn" onclick="shareTo('facebook')"><span class="ico">📘</span>페이스북</button>
+      <button class="s-btn" onclick="shareTo('line')"><span class="ico">💚</span>라인</button>
+      <button class="s-btn" onclick="shareTo('telegram')"><span class="ico">✈️</span>텔레그램</button>
+      <button class="s-btn" onclick="shareTo('whatsapp')"><span class="ico">🟢</span>왓츠앱</button>
+      <button class="s-btn" onclick="copyLink()"><span class="ico">🔗</span>링크 복사</button>
+      <button class="s-btn" onclick="systemShare()"><span class="ico">📲</span>기기 공유창</button>
+      <button class="s-btn" onclick="closeSheet()"><span class="ico">✖️</span>닫기</button>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast">링크가 복사됐어요! 동료에게 보내보세요 🐾</div>
 
@@ -349,6 +373,40 @@ function showToast() {
   const t = document.getElementById("toast");
   t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2200);
+}
+</script>
+<script>
+// 공유 시트 (PC/모바일 공통) — 아래 선언이 위의 shareResult를 덮어씀
+function shareResult() { document.getElementById("sheet").classList.add("show"); }
+function closeSheet() { document.getElementById("sheet").classList.remove("show"); }
+function _shareData() {
+  const name = document.getElementById("r-name").textContent;
+  const url = location.href.split("#")[0];
+  const text = name ? "나의 오피스 동물상은 [" + name + "] 🐾 너는 무슨 동물일까?" : document.title;
+  return { text: text, url: url };
+}
+function shareTo(app) {
+  const d = _shareData();
+  const u = encodeURIComponent(d.url), t = encodeURIComponent(d.text);
+  const links = {
+    twitter: "https://twitter.com/intent/tweet?text=" + t + "&url=" + u,
+    facebook: "https://www.facebook.com/sharer/sharer.php?u=" + u,
+    line: "https://social-plugins.line.me/lineit/share?url=" + u + "&text=" + t,
+    telegram: "https://t.me/share/url?url=" + u + "&text=" + t,
+    whatsapp: "https://wa.me/?text=" + t + "%20" + u
+  };
+  window.open(links[app], "_blank", "noopener,width=620,height=560");
+}
+async function copyLink() {
+  const d = _shareData();
+  try { await navigator.clipboard.writeText(d.text + " " + d.url); showToast(); }
+  catch (e) { prompt("아래 링크를 복사하세요!", d.url); }
+  closeSheet();
+}
+async function systemShare() {
+  const d = _shareData();
+  if (navigator.share) { try { await navigator.share({ title: document.title, text: d.text, url: d.url }); } catch (e) {} closeSheet(); }
+  else { copyLink(); }
 }
 </script>
 </body>
