@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>백수 동물상 테스트 — 나는 어떤 백수일까?</title>
+<meta name="description" content="12개 질문으로 알아보는 나의 백수 유형! 프로 갓생러 꿀벌부터 궁극의 이완 나무늘보까지, 백수메이트 궁합도 확인해보세요.">
+<meta property="og:title" content="백수 동물상 테스트 🦥">
+<meta property="og:description" content="나는 어떤 백수일까? 12문항으로 알아보고 백수메이트 궁합까지 확인!">
+<meta property="og:type" content="website">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #F3F7F0;
+    --card: #FFFFFF;
+    --ink: #2F3A2C;
+    --sub: #7C8A74;
+    --accent: #5FA75F;
+    --accent-soft: #DDEDD8;
+    --line: #E2ECDC;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+  }
+  .app {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+  }
+  .lang {
+    position: absolute; top: 18px; right: 20px;
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-decoration: none; border: 1.5px solid var(--line);
+    padding: 4px 10px; border-radius: 99px; background: var(--card);
+  }
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  .intro { text-align: center; justify-content: center; }
+  .intro .paws {
+    font-size: 15px; letter-spacing: 8px; color: var(--accent); margin-bottom: 18px;
+  }
+  .intro .zoo {
+    font-size: 52px; line-height: 1.25; margin-bottom: 8px;
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  .intro h1 {
+    font-size: 27px; font-weight: 800; letter-spacing: -0.5px; margin: 14px 0 10px;
+  }
+  .intro h1 .hl { color: var(--accent); }
+  .intro p.desc { color: var(--sub); font-size: 15px; margin-bottom: 34px; }
+  .btn {
+    display: block; width: 100%; border: none; cursor: pointer;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 17px; font-weight: 700;
+    padding: 17px; border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(95,167,95,.35);
+    transition: transform .12s ease, box-shadow .12s ease;
+    text-decoration: none; text-align: center;
+  }
+  .btn:active { transform: scale(.97); box-shadow: 0 3px 10px rgba(95,167,95,.3); }
+  .btn.ghost {
+    background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--line); box-shadow: none;
+  }
+  .intro .meta { margin-top: 18px; font-size: 13px; color: var(--sub); }
+
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .qcount { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .track { flex: 1; height: 8px; background: var(--accent-soft); border-radius: 99px; overflow: hidden; }
+  .fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .35s ease; }
+  .qemoji { font-size: 40px; text-align: center; margin-bottom: 14px; }
+  .qtext {
+    font-size: 21px; font-weight: 800; text-align: center;
+    letter-spacing: -0.4px; margin-bottom: 34px; white-space: pre-line;
+  }
+  .opt {
+    display: block; width: 100%; cursor: pointer;
+    background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 16px;
+    font-family: inherit; font-size: 15.5px; font-weight: 600;
+    padding: 18px 20px; margin-bottom: 14px; text-align: left;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .opt:active { transform: scale(.97); border-color: var(--accent); background: var(--accent-soft); }
+
+  .result-card {
+    background: var(--card); border-radius: 24px; padding: 34px 26px 28px;
+    text-align: center; border: 1.5px solid var(--line);
+    box-shadow: 0 10px 30px rgba(47,58,44,.06);
+  }
+  .r-label { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 2px; margin-bottom: 14px; }
+  .r-emoji { font-size: 78px; line-height: 1; margin-bottom: 6px; }
+  .r-name { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .r-nick { font-size: 15px; color: var(--accent); font-weight: 700; margin-bottom: 20px; }
+  .r-desc { font-size: 15px; color: var(--ink); text-align: left; white-space: pre-line; margin-bottom: 22px; }
+  .r-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .r-tags span {
+    background: var(--accent-soft); color: #3E7A3E;
+    font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px;
+  }
+  .chemi { display: flex; gap: 12px; margin-bottom: 6px; }
+  .chemi > div {
+    flex: 1; background: var(--bg); border-radius: 16px; padding: 16px 10px;
+    border: 1.5px solid var(--line);
+  }
+  .chemi .t { font-size: 12.5px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
+  .chemi .e { font-size: 30px; }
+  .chemi .n { font-size: 13.5px; font-weight: 700; margin-top: 4px; }
+  .actions { margin-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; font-size: 14px; font-weight: 600;
+    padding: 12px 22px; border-radius: 99px; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer { margin-top: 40px; text-align: center; font-size: 12px; color: var(--sub); }
+  /* AD SLOT: 애드센스 승인 후 결과 카드 아래 삽입 */
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="lang" href="../en/jobless/">🇺🇸 EN</a>
+
+  <!-- 인트로 -->
+  <section class="screen intro active" id="intro">
+    <div class="paws">💤 💤 💤</div>
+    <div class="zoo">🐝 🐧 🦋<br>🐨 🦝 🦥</div>
+    <h1>나는 어떤 <span class="hl">백수</span>일까?</h1>
+    <p class="desc">12개 질문으로 알아보는 백수 동물상.<br>백수메이트 궁합까지 확인해보세요!</p>
+    <button class="btn" onclick="startTest()">테스트 시작하기</button>
+    <div class="meta">⏱ 소요시간 1분 · 총 12문항</div>
+  </section>
+
+  <!-- 질문 -->
+  <section class="screen" id="quiz">
+    <div class="topbar">
+      <div class="qcount" id="qcount">1 / 12</div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <div class="qemoji" id="qemoji"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="screen" id="result">
+    <div class="result-card">
+      <div class="r-label">MY JOBLESS ANIMAL</div>
+      <div class="r-emoji" id="r-emoji"></div>
+      <div class="r-name" id="r-name"></div>
+      <div class="r-nick" id="r-nick"></div>
+      <div class="r-desc" id="r-desc"></div>
+      <div class="r-tags" id="r-tags"></div>
+      <div class="chemi">
+        <div>
+          <div class="t">💚 최고의 백수메이트</div>
+          <div class="e" id="good-e"></div>
+          <div class="n" id="good-n"></div>
+        </div>
+        <div>
+          <div class="t">💥 만나면 둘 다 망함</div>
+          <div class="e" id="bad-e"></div>
+          <div class="n" id="bad-n"></div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="shareResult()">결과 공유하기 💤</button>
+      <a class="btn ghost" href="../">🐾 다음 테스트: 나는 사무실에서 무슨 동물일까?</a>
+      <button class="btn ghost" onclick="location.reload()">다시 해보기</button>
+    </div>
+  </section>
+
+  <footer>© 2026 오피스 동물원 · 재미로 보는 테스트예요!</footer>
+</div>
+<div class="toast" id="toast">링크가 복사됐어요! 백수 친구에게 보내보세요 💤</div>
+
+<script>
+// 축: [0] 외출/집콕 · [1] 갓생/휴식 · [2] 계획/즉흥
+const QUESTIONS = [
+  { e:"🌤️", t:"눈 떠보니 오전 11시.\n오늘 뭐 하지?", axis:0,
+    o:[{t:"일단 씻는다. 나갈 준비 고고", v:1},
+       {t:"침대에 누운 채로 폰부터 잡는다", v:0}] },
+  { e:"📱", t:"친구한테 “지금 나와!” 연락이 왔다", axis:0,
+    o:[{t:"오케이, 30분 안에 나간다", v:1},
+       {t:"“다음 주에 보자~” (안 나감)", v:0}] },
+  { e:"🍚", t:"백수의 끼니는 주로?", axis:0,
+    o:[{t:"나가서 사 먹거나 누구든 만나서 먹는다", v:1},
+       {t:"배달 앱 or 냉장고 털기", v:0}] },
+  { e:"🛋️", t:"백수 일주일 차,\n솔직히 그리운 건?", axis:0,
+    o:[{t:"사람들이랑 부대끼던 그 느낌", v:1},
+       {t:"그리운 거 없는데요? 지금이 최고", v:0}] },
+  { e:"🔥", t:"백수가 된 나, 진짜 속마음은?", axis:1,
+    o:[{t:"이 시간에 뭐라도 배워둬야지", v:1},
+       {t:"드디어 쉰다… 아무것도 안 할 거야", v:0}] },
+  { e:"📺", t:"내 유튜브 알고리즘에 뜨는 건?", axis:1,
+    o:[{t:"자기계발, 부업, 갓생 브이로그", v:1},
+       {t:"먹방, 예능 짤, 고양이 영상", v:0}] },
+  { e:"💳", t:"통장 잔고를 확인한 순간", axis:1,
+    o:[{t:"불안해서 뭐라도 알아보기 시작한다", v:1},
+       {t:"뭐… 어떻게든 되겠지~", v:0}] },
+  { e:"🗣️", t:"“요즘 뭐 해?” 질문을 받으면?", axis:1,
+    o:[{t:"“준비하는 게 좀 있어” (진짜 있음)", v:1},
+       {t:"“그냥 쉬어}” 당당하게 말한다", v:0}] },
+  { e:"⏰", t:"백수의 하루 일과는?", axis:2,
+    o:[{t:"나름의 시간표가 있다", v:1},
+       {t:"그날 기분 따라 흘러간다", v:0}] },
+  { e:"🔔", t:"알람은 어떻게 하고 있나요?", axis:2,
+    o:[{t:"여전히 맞춰놓고 산다", v:1},
+       {t:"알람? 그게 뭐죠 (자연기상)", v:0}] },
+  { e:"🧭", t:"다음 행보(취업·이직·창업)는?", axis:2,
+    o:[{t:"대략적인 계획은 세워뒀다", v:1},
+       {t:"때가 되면 알게 되겠지", v:0}] },
+  { e:"🧊", t:"지금 우리 집 냉장고 상태는?", axis:2,
+    o:[{t:"장 봐서 나름 정리돼 있다", v:1},
+       {t:"배달 앱이 곧 나의 냉장고", v:0}] },
+];
+
+const RESULTS = {
+  // key: 외출/집콕 + 갓생/휴식 + 계획/즉흥 (1=앞글자)
+  "111": { emoji:"🐝", name:"꿀벌", nick:"프로 갓생 백수",
+    desc:"미라클모닝, 헬스장, 스터디카페 출근 도장까지.\n회사만 안 다닐 뿐, 누구보다 바쁘게 삽니다.\n근데… 쉬는 법도 좀 배우셔야 해요. 지금 쉬라고 있는 시간이에요!",
+    tags:["#미라클모닝","#스터디카페VIP","#백수맞나요"],
+    good:"011", bad:"000" },
+  "110": { emoji:"🐬", name:"돌고래", nick:"에너지 폭발 백수",
+    desc:"오늘은 한강 러닝, 내일은 원데이클래스, 모레는 등산.\n계획은 없지만 열정만은 만렙인 타입.\n통장이 조금 걱정되지만, 추억 부자인 건 확실합니다.",
+    tags:["#오늘은뭐하지","#원데이클래스콜렉터","#추억부자"],
+    good:"100", bad:"001" },
+  "101": { emoji:"🐧", name:"펭귄", nick:"동네 한 바퀴 장인",
+    desc:"매일 같은 시간, 같은 산책 코스, 같은 단골 카페.\n사장님과 안부를 주고받는 사이가 됐습니다.\n목표는 없지만 루틴만은 완벽한, 평화 그 자체의 백수.",
+    tags:["#단골카페","#산책장인","#동네지박령"],
+    good:"001", bad:"010" },
+  "100": { emoji:"🦋", name:"나비", nick:"자유로운 영혼",
+    desc:"발길 닿는 대로, 마음 가는 대로.\n어제는 바다를 보고 왔고 오늘은 어디로 갈지 모릅니다.\n통장은 가볍지만 마음만은 백만장자!",
+    tags:["#즉흥여행","#마음만은백만장자","#바람따라"],
+    good:"110", bad:"111" },
+  "011": { emoji:"🦫", name:"비버", nick:"집콕 자기계발러",
+    desc:"집에서 인강 듣고, 자격증 준비하고, 사이드 프로젝트까지.\n방 안에서 미래를 착착 쌓아 올리는 중입니다.\n나갈 준비는 완벽한데 집이 제일 좋은 게 함정.",
+    tags:["#인강N개수강중","#방구석빌드업","#집이최고"],
+    good:"111", bad:"100" },
+  "010": { emoji:"🦝", name:"너구리", nick:"올빼미 열정러",
+    desc:"새벽 3시에 갑자기 코딩 강의를 결제하는 타입.\n열정 스위치가 밤에만 켜지는 게 특징입니다.\n낮에 주무시는 건… 비밀로 해드릴게요.",
+    tags:["#새벽감성","#3시에강의결제","#낮잠은필수"],
+    good:"011", bad:"101" },
+  "001": { emoji:"🐨", name:"코알라", nick:"체계적 휴식가",
+    desc:"기상 → 밥 → 낮잠 → 유튜브 → 취침.\n완벽하게 설계된 휴식 루틴을 운영 중입니다.\n휴식에도 체계가 필요한 법. 당신은 그걸 아는 사람입니다.",
+    tags:["#낮잠은스케줄","#휴식에진심","#루틴러"],
+    good:"101", bad:"110" },
+  "000": { emoji:"🦥", name:"나무늘보", nick:"궁극의 이완",
+    desc:"침대와 물아일체. 배달 앱 VIP 등급 달성.\n세상에서 제일 편안한 표정을 갖고 있습니다.\n이 정도면 쉬는 게 아니라 예술의 경지예요.",
+    tags:["#침대와한몸","#배달VIP","#이완의예술"],
+    good:"100", bad:"111" },
+};
+
+let current = 0;
+const scores = [0, 0, 0];
+const counts = [0, 0, 0];
+
+function startTest() {
+  document.getElementById("intro").classList.remove("active");
+  document.getElementById("quiz").classList.add("active");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById("qcount").textContent = (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("fill").style.width = (current / QUESTIONS.length * 100) + "%";
+  document.getElementById("qemoji").textContent = q.e;
+  document.getElementById("qtext").textContent = q.t;
+  const box = document.getElementById("opts");
+  box.innerHTML = "";
+  const shuffled = [...q.o].sort(() => Math.random() - 0.5);
+  shuffled.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.textContent = o.t;
+    b.onclick = () => answer(q.axis, o.v);
+    box.appendChild(b);
+  });
+}
+
+function answer(axis, v) {
+  scores[axis] += v;
+  counts[axis]++;
+  current++;
+  if (current < QUESTIONS.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  const key = scores.map((s, i) => (s >= counts[i] / 2 ? "1" : "0")).join("");
+  const r = RESULTS[key];
+  document.getElementById("quiz").classList.remove("active");
+  document.getElementById("result").classList.add("active");
+  document.getElementById("r-emoji").textContent = r.emoji;
+  document.getElementById("r-name").textContent = r.name;
+  document.getElementById("r-nick").textContent = r.nick;
+  document.getElementById("r-desc").textContent = r.desc;
+  const tags = document.getElementById("r-tags");
+  tags.innerHTML = "";
+  r.tags.forEach(t => { const s = document.createElement("span"); s.textContent = t; tags.appendChild(s); });
+  document.getElementById("good-e").textContent = RESULTS[r.good].emoji;
+  document.getElementById("good-n").textContent = RESULTS[r.good].name;
+  document.getElementById("bad-e").textContent = RESULTS[r.bad].emoji;
+  document.getElementById("bad-n").textContent = RESULTS[r.bad].name;
+  window.scrollTo(0, 0);
+}
+
+async function shareResult() {
+  const name = document.getElementById("r-name").textContent;
+  const text = "나의 백수 동물상은 [" + name + "] 💤 너는 어떤 백수일까?";
+  const url = location.href.split("#")[0];
+  if (navigator.share) {
+    try { await navigator.share({ title: "백수 동물상 테스트", text, url }); return; } catch (e) {}
+  }
+  try {
+    await navigator.clipboard.writeText(text + " " + url);
+    showToast();
+  } catch (e) {
+    prompt("아래 링크를 복사해서 공유하세요!", url);
+  }
+}
+
+function showToast() {
+  const t = document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+</script>
+</body>
+</html>
