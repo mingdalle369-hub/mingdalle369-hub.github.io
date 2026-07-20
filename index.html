@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오피스 동물상 테스트 — 나는 사무실에서 무슨 동물일까?</title>
+<meta name="description" content="12개 질문으로 알아보는 나의 사무실 동물상! 보더콜리형 일잘러부터 카피바라형 평온러까지, 동료와 궁합도 확인해보세요.">
+<meta property="og:title" content="오피스 동물상 테스트 🐾">
+<meta property="og:description" content="나는 사무실에서 무슨 동물일까? 12문항으로 알아보고 동료랑 궁합까지 확인!">
+<meta property="og:type" content="website">
+<!-- TODO: 배포 후 og:url, og:image 채우기 -->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --ink: #3D3229;
+    --sub: #8A7B6C;
+    --accent: #FF8A5C;
+    --accent-soft: #FFE3D6;
+    --line: #F0E4D7;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+  }
+  .app {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+  }
+  .lang {
+    position: absolute; top: 18px; right: 20px;
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-decoration: none; border: 1.5px solid var(--line);
+    padding: 4px 10px; border-radius: 99px; background: var(--card);
+  }
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── 인트로 ── */
+  .intro { text-align: center; justify-content: center; }
+  .intro .paws {
+    font-size: 15px; letter-spacing: 8px; color: var(--accent); margin-bottom: 18px;
+  }
+  .intro .zoo {
+    font-size: 52px; line-height: 1.25; margin-bottom: 8px;
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  .intro h1 {
+    font-size: 27px; font-weight: 800; letter-spacing: -0.5px; margin: 14px 0 10px;
+  }
+  .intro h1 .hl { color: var(--accent); }
+  .intro p.desc { color: var(--sub); font-size: 15px; margin-bottom: 34px; }
+  .btn {
+    display: block; width: 100%; border: none; cursor: pointer;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 17px; font-weight: 700;
+    padding: 17px; border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(255,138,92,.35);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active { transform: scale(.97); box-shadow: 0 3px 10px rgba(255,138,92,.3); }
+  .btn.ghost {
+    background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--line); box-shadow: none;
+  }
+  .intro .meta { margin-top: 18px; font-size: 13px; color: var(--sub); }
+
+  /* ── 질문 ── */
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .qcount { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .track { flex: 1; height: 8px; background: var(--accent-soft); border-radius: 99px; overflow: hidden; }
+  .fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .35s ease; }
+  .qemoji { font-size: 40px; text-align: center; margin-bottom: 14px; }
+  .qtext {
+    font-size: 21px; font-weight: 800; text-align: center;
+    letter-spacing: -0.4px; margin-bottom: 34px; white-space: pre-line;
+  }
+  .opt {
+    display: block; width: 100%; cursor: pointer;
+    background: var(--card); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 16px;
+    font-family: inherit; font-size: 15.5px; font-weight: 600;
+    padding: 18px 20px; margin-bottom: 14px; text-align: left;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .opt:active { transform: scale(.97); border-color: var(--accent); background: var(--accent-soft); }
+
+  /* ── 결과 ── */
+  .result-card {
+    background: var(--card); border-radius: 24px; padding: 34px 26px 28px;
+    text-align: center; border: 1.5px solid var(--line);
+    box-shadow: 0 10px 30px rgba(61,50,41,.06);
+  }
+  .r-label { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 2px; margin-bottom: 14px; }
+  .r-emoji { font-size: 78px; line-height: 1; margin-bottom: 6px; }
+  .r-emoji-note { font-size: 11.5px; color: var(--sub); margin-bottom: 10px; }
+  .r-name { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .r-nick { font-size: 15px; color: var(--accent); font-weight: 700; margin-bottom: 20px; }
+  .r-desc { font-size: 15px; color: var(--ink); text-align: left; white-space: pre-line; margin-bottom: 22px; }
+  .r-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .r-tags span {
+    background: var(--accent-soft); color: #C4572E;
+    font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px;
+  }
+  .chemi { display: flex; gap: 12px; margin-bottom: 6px; }
+  .chemi > div {
+    flex: 1; background: var(--bg); border-radius: 16px; padding: 16px 10px;
+    border: 1.5px solid var(--line);
+  }
+  .chemi .t { font-size: 12.5px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
+  .chemi .e { font-size: 30px; }
+  .chemi .n { font-size: 13.5px; font-weight: 700; margin-top: 4px; }
+  .actions { margin-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; font-size: 14px; font-weight: 600;
+    padding: 12px 22px; border-radius: 99px; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer { margin-top: 40px; text-align: center; font-size: 12px; color: var(--sub); }
+  /* AD SLOT: 애드센스 승인 후 아래 위치에 광고 삽입 (결과 카드 아래가 CTR 최적) */
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="lang" href="./en/">🇺🇸 EN</a>
+
+  <!-- 인트로 -->
+  <section class="screen intro active" id="intro">
+    <div class="paws">🐾 🐾 🐾</div>
+    <div class="zoo">🐕 🦉 🦦<br>🐢 🐈 🐿️</div>
+    <h1>나는 사무실에서<br><span class="hl">무슨 동물</span>일까?</h1>
+    <p class="desc">12개 질문으로 알아보는 오피스 동물상.<br>동료랑 궁합까지 확인해보세요!</p>
+    <button class="btn" onclick="startTest()">테스트 시작하기</button>
+    <div class="meta">⏱ 소요시간 1분 · 총 12문항</div>
+  </section>
+
+  <!-- 질문 -->
+  <section class="screen" id="quiz">
+    <div class="topbar">
+      <div class="qcount" id="qcount">1 / 12</div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <div class="qemoji" id="qemoji"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="screen" id="result">
+    <div class="result-card">
+      <div class="r-label">MY OFFICE ANIMAL</div>
+      <div class="r-emoji" id="r-emoji"></div>
+      <div class="r-emoji-note" id="r-emoji-note"></div>
+      <div class="r-name" id="r-name"></div>
+      <div class="r-nick" id="r-nick"></div>
+      <div class="r-desc" id="r-desc"></div>
+      <div class="r-tags" id="r-tags"></div>
+      <div class="chemi">
+        <div>
+          <div class="t">💚 최고의 짝꿍</div>
+          <div class="e" id="good-e"></div>
+          <div class="n" id="good-n"></div>
+        </div>
+        <div>
+          <div class="t">💥 환장의 짝꿍</div>
+          <div class="e" id="bad-e"></div>
+          <div class="n" id="bad-n"></div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="shareResult()">결과 공유하기 🐾</button>
+      <button class="btn ghost" onclick="location.reload()">다시 해보기</button>
+    </div>
+  </section>
+
+  <footer>© 2026 오피스 동물원 · 재미로 보는 테스트예요!</footer>
+</div>
+<div class="toast" id="toast">링크가 복사됐어요! 동료에게 보내보세요 🐾</div>
+
+<script>
+// 축: [0] E/I(사교) · [1] P/C(열정) · [2] S/F(계획)
+const QUESTIONS = [
+  { e:"🌅", t:"월요일 아침,\n사무실에 도착한 나는?", axis:0,
+    o:[{t:"“주말 뭐 하셨어요~?” 먼저 말을 건다", v:1},
+       {t:"조용히 자리에 앉아 모니터부터 켠다", v:0}] },
+  { e:"🍚", t:"제일 완벽한 점심시간은?", axis:0,
+    o:[{t:"동료들이랑 왁자지껄 맛집 탐방", v:1},
+       {t:"혼밥에 이어폰, 완전한 나만의 시간", v:0}] },
+  { e:"🍻", t:"단체 회식 공지가 떴다!", axis:0,
+    o:[{t:"오~ 뭐 먹으려나? 은근 기대된다", v:1},
+       {t:"자연스럽게 빠질 각도부터 잰다", v:0}] },
+  { e:"🙋", t:"회의 중 의견이 떠올랐을 때?", axis:0,
+    o:[{t:"일단 손 들고 말하고 본다", v:1},
+       {t:"확실할 때만 조심스럽게 꺼낸다", v:0}] },
+  { e:"📦", t:"새 프로젝트가 뚝 떨어졌다!", axis:1,
+    o:[{t:"“오케이, 어떻게 잘 해볼까?” 시동 건다", v:1},
+       {t:"일단 마감이 언제인지부터 확인한다", v:0}] },
+  { e:"📈", t:"승진과 성과, 솔직한 내 마음은?", axis:1,
+    o:[{t:"솔직히 욕심난다. 이왕 하는 거 잘하고 싶다", v:1},
+       {t:"월급만 안 밀리면 그걸로 충분하다", v:0}] },
+  { e:"🕠", t:"퇴근 5분 전, 급한 일이 생겼다!", axis:1,
+    o:[{t:"후딱 쳐내고 깔끔하게 퇴근한다", v:1},
+       {t:"내일의 나에게 정중히 토스한다", v:0}] },
+  { e:"🧱", t:"일하다 꽉 막혔을 때 나는?", axis:1,
+    o:[{t:"오기가 발동한다. 어떻게든 뚫는다", v:1},
+       {t:"잠깐 커피 마시며 흘려보낸다", v:0}] },
+  { e:"✅", t:"나의 업무 스타일은?", axis:2,
+    o:[{t:"투두리스트가 없으면 불안하다", v:1},
+       {t:"그때그때 급한 것부터 처리한다", v:0}] },
+  { e:"🖥️", t:"내 컴퓨터 바탕화면 상태는?", axis:2,
+    o:[{t:"폴더별로 완벽 정리되어 있다", v:1},
+       {t:"파일들이 자유롭게 방목되고 있다", v:0}] },
+  { e:"🔄", t:"갑자기 일정이 확 바뀌면?", axis:2,
+    o:[{t:"스트레스… 계획을 다시 짜야 한다", v:1},
+       {t:"뭐 어때~ 유연하게 맞춰 간다", v:0}] },
+  { e:"✈️", t:"휴가 계획을 세울 때 나는?", axis:2,
+    o:[{t:"시간 단위 일정표를 만든다", v:1},
+       {t:"비행기표만 끊으면 준비 끝", v:0}] },
+];
+
+const RESULTS = {
+  // key: E/I + P/C + S/F  (1=앞글자)
+  "111": { emoji:"🐕", name:"보더콜리", nick:"타고난 일잘러 리더",
+    desc:"회의를 이끌고, 일정을 굴리고, 막히면 뚫는 사무실의 엔진.\n당신이 있는 팀은 굴러가는 이유가 있습니다.\n다만 가끔은 남의 몫까지 물어오는 게 문제라면 문제!",
+    tags:["#추진력만렙","#회의주도자","#팀의엔진"],
+    good:"110", bad:"000" },
+  "110": { emoji:"🐶", name:"골든리트리버", nick:"사무실 인간 비타민",
+    desc:"당신이 출근하면 사무실 공기가 3도쯤 따뜻해집니다.\n리액션 맛집에 열정까지 갖춘 분위기 메이커.\n다만 모두에게 착하다 보니 일이 몰리는 건 조심!",
+    tags:["#분위기메이커","#리액션맛집","#미워할수없음"],
+    good:"100", bad:"011" },
+  "101": { emoji:"🐿️", name:"다람쥐", nick:"사내 소식통 정보상",
+    desc:"어느 팀이 바쁜지, 누가 이직하는지, 맛있는 간식이 어디 있는지.\n사무실의 모든 정보가 당신을 거쳐 갑니다.\n꼼꼼하고 성실한데 재미까지 있는 귀한 유형!",
+    tags:["#정보통","#소식반박불가","#간식레이더"],
+    good:"110", bad:"010" },
+  "100": { emoji:"🦦", name:"수달", nick:"노는 듯 일하는 재간둥이",
+    desc:"분명 실없는 농담을 하고 있었는데 일은 다 되어 있는 미스터리.\n유연함과 사교성으로 어디서든 살아남는 만능형.\n다만 마감 직전의 몰입력에 스스로도 가끔 놀랍니다.",
+    tags:["#유연함의신","#농담반진담반","#마감의기적"],
+    good:"000", bad:"111" },
+  "011": { emoji:"🦉", name:"부엉이", nick:"조용한 실력자",
+    desc:"말수는 적지만 결과물이 대신 말해주는 유형.\n혼자 몰입할 때 가장 강하고, 완성도에 타협이 없습니다.\n당신의 “음… 다시 볼게요”는 사실 최고의 애정 표현.",
+    tags:["#완벽주의","#결과로증명","#몰입장인"],
+    good:"010", bad:"110" },
+  "010": { emoji:"🐈", name:"고양이", nick:"마이페이스 츤데레",
+    desc:"간섭은 사양, 재촉도 사양. 하지만 맡은 일은 우아하게 해냅니다.\n무심한 듯해도 팀이 힘들 땐 슬쩍 도와주는 츤데레.\n당신의 페이스를 존중해주는 사람에게만 곁을 내줍니다.",
+    tags:["#마이페이스","#우아한독립","#알고보면따뜻"],
+    good:"011", bad:"101" },
+  "001": { emoji:"🐢", name:"거북이", nick:"꾸준함의 신",
+    desc:"화려하진 않지만 당신의 기록은 배신하지 않습니다.\n매일 같은 시간, 같은 자리에서 묵묵히 쌓아 올리는 유형.\n결국 오래 남는 사람은 당신이라는 걸 모두가 압니다.",
+    tags:["#성실왕","#기록장인","#최후의승자"],
+    good:"111", bad:"100" },
+  "000": { emoji:"🦛", name:"카피바라", nick:"무념무상 평온의 화신",
+    desc:"어떤 폭풍이 몰아쳐도 당신 주변만은 잔잔합니다.\n화내는 걸 본 사람이 없다는 소문의 주인공.\n사무실의 정신적 지주이자 힐링 그 자체입니다.",
+    tags:["#평온그자체","#화내는걸본적없음","#사무실힐링존"],
+    good:"100", bad:"111",
+    note:"* 카피바라는 이모지가 없어서 하마가 대신 왔어요 🙏" },
+};
+
+let current = 0;
+const scores = [0, 0, 0];   // 각 축의 1점 개수
+const counts = [0, 0, 0];   // 각 축의 문항 수
+
+function startTest() {
+  document.getElementById("intro").classList.remove("active");
+  document.getElementById("quiz").classList.add("active");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById("qcount").textContent = (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("fill").style.width = (current / QUESTIONS.length * 100) + "%";
+  document.getElementById("qemoji").textContent = q.e;
+  document.getElementById("qtext").textContent = q.t;
+  const box = document.getElementById("opts");
+  box.innerHTML = "";
+  // 보기 순서 랜덤 섞기 (응답 편향 방지)
+  const shuffled = [...q.o].sort(() => Math.random() - 0.5);
+  shuffled.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.textContent = o.t;
+    b.onclick = () => answer(q.axis, o.v);
+    box.appendChild(b);
+  });
+}
+
+function answer(axis, v) {
+  scores[axis] += v;
+  counts[axis]++;
+  current++;
+  if (current < QUESTIONS.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  const key = scores.map((s, i) => (s >= counts[i] / 2 ? "1" : "0")).join("");
+  const r = RESULTS[key];
+  document.getElementById("quiz").classList.remove("active");
+  document.getElementById("result").classList.add("active");
+  document.getElementById("r-emoji").textContent = r.emoji;
+  document.getElementById("r-emoji-note").textContent = r.note || "";
+  document.getElementById("r-name").textContent = r.name;
+  document.getElementById("r-nick").textContent = r.nick;
+  document.getElementById("r-desc").textContent = r.desc;
+  const tags = document.getElementById("r-tags");
+  tags.innerHTML = "";
+  r.tags.forEach(t => { const s = document.createElement("span"); s.textContent = t; tags.appendChild(s); });
+  document.getElementById("good-e").textContent = RESULTS[r.good].emoji;
+  document.getElementById("good-n").textContent = RESULTS[r.good].name;
+  document.getElementById("bad-e").textContent = RESULTS[r.bad].emoji;
+  document.getElementById("bad-n").textContent = RESULTS[r.bad].name;
+  window.scrollTo(0, 0);
+}
+
+async function shareResult() {
+  const name = document.getElementById("r-name").textContent;
+  const text = "나의 오피스 동물상은 [" + name + "] 🐾 너는 무슨 동물일까?";
+  const url = location.href.split("#")[0];
+  if (navigator.share) {
+    try { await navigator.share({ title: "오피스 동물상 테스트", text, url }); return; } catch (e) {}
+  }
+  try {
+    await navigator.clipboard.writeText(text + " " + url);
+    showToast();
+  } catch (e) {
+    prompt("아래 링크를 복사해서 공유하세요!", url);
+  }
+}
+
+function showToast() {
+  const t = document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+</script>
+</body>
+</html>
