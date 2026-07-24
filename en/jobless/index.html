@@ -138,6 +138,9 @@
   .s-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 11.5px; color: var(--sub); font-weight: 600; padding: 0; }
   .s-btn .ico { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--bg); border: 1.5px solid var(--line); transition: transform .12s ease; }
   .s-btn:active .ico { transform: scale(.92); }
+  .nick-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 15px; margin-bottom: 8px; background: var(--bg); color: var(--ink); }
+  .nick-input:focus { outline: none; border-color: var(--accent); }
+  .rec-msg { font-size: 13px; min-height: 18px; margin-bottom: 10px; color: var(--accent); font-weight: 700; text-align: center; }
 </style>
 </head>
 <body>
@@ -189,6 +192,7 @@
     </div>
     <div class="actions">
       <button class="btn" onclick="shareResult()">Share my result 💤</button>
+      <button class="btn ghost" onclick="openRec()">📝 Save with my nickname</button>
       <a class="btn ghost" href="../">🐾 Next test: What animal are you at work?</a>
       <button class="btn ghost" onclick="location.reload()">Try again</button>
     </div>
@@ -209,6 +213,15 @@
       <button class="s-btn" onclick="systemShare()"><span class="ico">📲</span>More apps</button>
       <button class="s-btn" onclick="closeSheet()"><span class="ico">✖️</span>Close</button>
     </div>
+  </div>
+</div>
+<div class="sheet-mask" id="recsheet" onclick="if(event.target===this)closeRec()">
+  <div class="sheet">
+    <h3>📝 Save my result with a nickname</h3>
+    <input id="nickInput" class="nick-input" maxlength="20" placeholder="Nickname (1–20 letters/numbers)">
+    <div class="rec-msg" id="recMsg"></div>
+    <button class="btn" id="recBtn" onclick="saveRecord()">Save my record</button>
+    <a class="btn ghost" href="../records/" style="margin-top:10px">View my records 🐾</a>
   </div>
 </div>
 <div class="toast" id="toast">Link copied! Send it to a jobless buddy 💤</div>
@@ -398,6 +411,56 @@ async function systemShare() {
   const d = _shareData();
   if (navigator.share) { try { await navigator.share({ title: document.title, text: d.text, url: d.url }); } catch (e) {} closeSheet(); }
   else { copyLink(); }
+}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// 닉네임 기록 (Firebase Firestore)
+firebase.initializeApp({
+  apiKey: "AIzaSyDt_LHbcYOVfLBM4T2JTDD1aCGT1A22BqM",
+  authDomain: "testhome-40b4b.firebaseapp.com",
+  projectId: "testhome-40b4b",
+  storageBucket: "testhome-40b4b.firebasestorage.app",
+  messagingSenderId: "109198030226",
+  appId: "1:109198030226:web:d9d19f5ce66f353d37bd4b"
+});
+const _db = firebase.firestore();
+const TEST_ID = "jobless-en";
+function openRec() {
+  const saved = localStorage.getItem("zooNick");
+  if (saved) document.getElementById("nickInput").value = saved;
+  document.getElementById("recMsg").textContent = "";
+  document.getElementById("recsheet").classList.add("show");
+}
+function closeRec() { document.getElementById("recsheet").classList.remove("show"); }
+async function saveRecord() {
+  const nick = document.getElementById("nickInput").value.trim();
+  const msg = document.getElementById("recMsg");
+  const btn = document.getElementById("recBtn");
+  if (!/^[0-9A-Za-z가-힣_-]{1,20}$/.test(nick)) { msg.textContent = "Nickname must be 1–20 letters/numbers!"; return; }
+  const name = document.getElementById("r-name").textContent;
+  if (!name) { msg.textContent = "Finish the test first to save a record!"; return; }
+  btn.disabled = true; msg.textContent = "Saving...";
+  try {
+    try {
+      await _db.collection("nicknames").doc(nick).set({ createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    } catch (e) {
+      if (localStorage.getItem("zooNick") !== nick && !confirm("This nickname is already registered. Is it yours?")) { btn.disabled = false; msg.textContent = ""; return; }
+    }
+    await _db.collection("results").add({
+      nickname: nick, test: TEST_ID,
+      resultName: name,
+      emoji: document.getElementById("r-emoji").textContent,
+      nick2: document.getElementById("r-nick").textContent,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    localStorage.setItem("zooNick", nick);
+    msg.textContent = "Saved! ✅ Check it on My Records";
+  } catch (e) {
+    msg.textContent = "Failed to save… please try again later";
+  }
+  btn.disabled = false;
 }
 </script>
 </body>
