@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감정 쓰레기통 🗑️ — 버리고 싶은 마음 버리는 곳</title>
+<meta name="description" content="버리고 싶은 감정, 기억, 추억을 적고 구겨서 버리세요. 내 기기에만 저장되고 아무도 볼 수 없어요.">
+<meta property="og:title" content="감정 쓰레기통 🗑️">
+<meta property="og:description" content="버리고 싶은 마음, 여기에 구겨서 버리세요. 아무도 못 봐요.">
+<meta property="og:type" content="website">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #EFEEF5;
+    --card: #FFFFFF;
+    --ink: #35323F;
+    --sub: #8A8699;
+    --accent: #7B6CF6;
+    --accent-soft: #E6E2FB;
+    --line: #E2DFEE;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  .app { width: 100%; max-width: 440px; padding: 24px 20px 48px; position: relative; }
+  .home {
+    position: absolute; top: 18px; left: 20px;
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-decoration: none; border: 1.5px solid var(--line);
+    padding: 4px 10px; border-radius: 99px; background: var(--card);
+  }
+  h1 { font-size: 25px; font-weight: 800; letter-spacing: -0.5px; margin: 44px 0 6px; text-align: center; }
+  p.desc { color: var(--sub); font-size: 13.5px; text-align: center; margin-bottom: 6px; }
+  p.priv { color: var(--sub); font-size: 11.5px; text-align: center; margin-bottom: 20px; }
+  .btn {
+    display: block; width: 100%; border: none; cursor: pointer; text-align: center; text-decoration: none;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 16px; font-weight: 700;
+    padding: 15px; border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(123,108,246,.3);
+    transition: transform .12s ease;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn.ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); box-shadow: none; }
+  .btn.danger { background: var(--card); color: #C0564E; border: 1.5px solid #EAD3D0; box-shadow: none; }
+
+  /* ── 쓰레기통 ── */
+  .bin-wrap { position: relative; margin: 10px auto 22px; width: 300px; height: 300px; touch-action: pan-y; }
+  .bin {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 220px; height: 210px;
+    background: linear-gradient(180deg, #C9C4DE, #ADA7C8);
+    border-radius: 14px 14px 26px 26px;
+    box-shadow: inset 0 14px 22px rgba(53,50,63,.18), 0 10px 24px rgba(53,50,63,.12);
+  }
+  .bin::before {
+    content: ""; position: absolute; top: -12px; left: -8px; right: -8px; height: 20px;
+    background: linear-gradient(180deg, #D8D4EA, #BBB5D3);
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(53,50,63,.15);
+  }
+  .bin-label {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    font-size: 36px; opacity: .35; pointer-events: none;
+  }
+  .ball {
+    position: absolute; cursor: pointer; user-select: none; -webkit-user-select: none;
+    background: radial-gradient(circle at 32% 30%, #ffffff, #EDEAE2 55%, #CFCABE 85%);
+    border-radius: 46% 54% 52% 48% / 52% 47% 53% 48%;
+    box-shadow: inset -3px -4px 8px rgba(120,112,96,.35), inset 2px 3px 5px rgba(255,255,255,.9), 0 3px 6px rgba(53,50,63,.2);
+    touch-action: none; will-change: transform;
+  }
+  .ball::after {
+    content: ""; position: absolute; inset: 18%;
+    border-radius: inherit;
+    background:
+      linear-gradient(35deg, transparent 46%, rgba(140,132,112,.25) 48%, transparent 52%),
+      linear-gradient(-20deg, transparent 40%, rgba(140,132,112,.22) 43%, transparent 47%),
+      linear-gradient(80deg, transparent 55%, rgba(140,132,112,.2) 58%, transparent 62%);
+  }
+  .empty-hint { text-align: center; color: var(--sub); font-size: 13px; position: absolute; top: 40%; left: 0; right: 0; pointer-events: none; }
+  .count { text-align: center; font-size: 13px; color: var(--sub); margin-bottom: 14px; min-height: 18px; }
+  .cta { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── 시트 공통 ── */
+  .sheet-mask {
+    position: fixed; inset: 0; background: rgba(40,36,56,.5);
+    display: none; align-items: flex-end; justify-content: center; z-index: 50;
+  }
+  .sheet-mask.show { display: flex; }
+  .sheet {
+    background: var(--card); width: 100%; max-width: 440px;
+    border-radius: 24px 24px 0 0; padding: 22px 20px 28px;
+    animation: rise .25s ease; max-height: 88vh; overflow-y: auto;
+  }
+  @keyframes rise { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .sheet h3 { font-size: 16px; font-weight: 800; text-align: center; margin-bottom: 14px; }
+  textarea {
+    width: 100%; min-height: 150px; resize: vertical;
+    border: 1.5px solid var(--line); border-radius: 14px;
+    font-family: inherit; font-size: 15px; padding: 14px 16px;
+    background: var(--bg); color: var(--ink); line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  .view-body { font-size: 15px; white-space: pre-wrap; word-break: break-word; margin-bottom: 14px; }
+  .view-date { font-size: 12px; color: var(--sub); text-align: center; margin-bottom: 14px; }
+
+  /* 던지는 종이 */
+  .paper-fly {
+    position: fixed; z-index: 100; pointer-events: none;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 12px; font-size: 12px; color: var(--sub);
+    width: 180px; max-height: 120px; overflow: hidden;
+    box-shadow: 0 8px 20px rgba(53,50,63,.2);
+  }
+  footer { margin-top: 34px; text-align: center; font-size: 12px; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="home" href="../">← 오피스 동물원</a>
+  <h1>감정 쓰레기통 🗑️</h1>
+  <p class="desc">버리고 싶은 감정, 기억, 말 못 한 마음…<br>여기에 구겨서 버리세요.</p>
+  <p class="priv">🔒 이 쓰레기통은 내 기기에만 있어요. 아무도 못 봐요.</p>
+
+  <div class="bin-wrap" id="binWrap">
+    <div class="empty-hint" id="emptyHint">아직 비어 있어요.<br>첫 번째 마음을 버려보세요 🕊️</div>
+    <div class="bin"><div class="bin-label">🗑️</div></div>
+    <div id="balls"></div>
+  </div>
+  <div class="count" id="count"></div>
+
+  <div class="cta">
+    <button class="btn" onclick="openWrite()">버릴 것 쓰기 ✍️</button>
+    <button class="btn danger" id="emptyBtn" onclick="openEmpty()" style="display:none">쓰레기통 비우기 🧹</button>
+  </div>
+
+  <footer>💡 마우스를 휘저으면 바스락바스락, 꾸욱 누르면 내용이 보여요</footer>
+</div>
+
+<!-- 쓰기 시트 -->
+<div class="sheet-mask" id="writeSheet" onclick="if(event.target===this)closeWrite()">
+  <div class="sheet">
+    <h3>버리고 싶은 것 ✍️</h3>
+    <textarea id="text" maxlength="2000" placeholder="어떤 감정이든, 기억이든, 사람이든… 마음껏 적어요. 어차피 버릴 거니까."></textarea>
+    <button class="btn" onclick="throwIt()">구겨서 버리기 🗑️</button>
+  </div>
+</div>
+
+<!-- 열람 시트 -->
+<div class="sheet-mask" id="viewSheet" onclick="if(event.target===this)closeView()">
+  <div class="sheet">
+    <h3>구겨진 마음 펴보기 🫧</h3>
+    <div class="view-date" id="viewDate"></div>
+    <div class="view-body" id="viewText"></div>
+    <button class="btn ghost" onclick="closeView()">다시 구겨두기</button>
+  </div>
+</div>
+
+<!-- 비우기 확인 -->
+<div class="sheet-mask" id="emptySheet" onclick="if(event.target===this)closeEmpty()">
+  <div class="sheet">
+    <h3>쓰레기통을 비울까요? 🧹</h3>
+    <p style="text-align:center; color:var(--sub); font-size:14px; margin-bottom:18px">
+      버린 마음 <b id="emptyCount"></b>개가 완전히 사라져요.<br>다시 볼 수 없어요. 그게 목적이지만요.
+    </p>
+    <button class="btn" onclick="emptyBin()">네, 전부 비울래요</button>
+    <button class="btn ghost" onclick="closeEmpty()" style="margin-top:10px">조금만 더 뒀다가요</button>
+  </div>
+</div>
+
+<script>
+const KEY = "trashItems";
+let items = [];
+try { items = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { items = []; }
+
+// ── 바스락 소리 ──
+let lastSound = 0;
+function rustle(vol) {
+  const now = Date.now();
+  if (now - lastSound < 120) return;
+  lastSound = now;
+  try {
+    const ctx = window._ac || (window._ac = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === "suspended") ctx.resume();
+    const dur = 0.13, sr = ctx.sampleRate;
+    const buf = ctx.createBuffer(1, Math.floor(sr * dur), sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 1.8);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = "highpass"; f.frequency.value = 1600;
+    const g = ctx.createGain(); g.gain.value = vol || 0.3;
+    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start();
+  } catch (e) {}
+}
+
+// ── 물리 엔진 (커서 다가가면 튕겨나감) ──
+const phys = [];
+const WRAP_W = 300, WRAP_H = 300;
+function seeded(id, salt) {
+  let h = salt;
+  const s = String(id);
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997;
+  return h / 997;
+}
+function render() {
+  const box = document.getElementById("balls");
+  box.innerHTML = "";
+  phys.length = 0;
+  items.forEach(it => {
+    const b = document.createElement("div");
+    b.className = "ball";
+    const size = 40 + seeded(it.id, 7) * 22;
+    const left = 55 + seeded(it.id, 13) * 175;
+    const bottom = 18 + seeded(it.id, 29) * 130;
+    const rot = Math.floor(seeded(it.id, 41) * 360);
+    b.style.width = size + "px"; b.style.height = size + "px";
+    b.style.left = left + "px"; b.style.bottom = bottom + "px";
+    b.style.zIndex = Math.floor(bottom);
+    const p = { el: b, id: it.id, size: size, baseX: left + size / 2, baseY: bottom + size / 2, x: 0, y: 0, vx: 0, vy: 0, rot: rot };
+    phys.push(p);
+    let pressTimer = null, longPressed = false;
+    b.addEventListener("pointerdown", e => {
+      longPressed = false;
+      pressTimer = setTimeout(() => { longPressed = true; openView(it.id); }, 550);
+      e.preventDefault();
+    });
+    b.addEventListener("pointerup", e => {
+      clearTimeout(pressTimer);
+      if (!longPressed) {
+        // 톡 치면 팡 튕기기
+        const ang = Math.random() * Math.PI * 2;
+        p.vx += Math.cos(ang) * 14; p.vy += Math.abs(Math.sin(ang)) * 12 + 4;
+        rustle(0.4);
+      }
+    });
+    b.addEventListener("pointerleave", () => clearTimeout(pressTimer));
+    b.addEventListener("contextmenu", e => e.preventDefault());
+    box.appendChild(b);
+  });
+  document.getElementById("emptyHint").style.display = items.length ? "none" : "block";
+  document.getElementById("emptyBtn").style.display = items.length ? "block" : "none";
+  document.getElementById("count").textContent = items.length ? "버려진 마음 " + items.length + "개가 구겨져 있어요" : "";
+}
+
+// 커서 근접 반발
+const binWrap = document.getElementById("binWrap");
+function repel(cx, cy) {
+  const rect = binWrap.getBoundingClientRect();
+  const mx = cx - rect.left;               // wrap 좌표 (좌→우)
+  const my = rect.bottom - cy;             // wrap 좌표 (아래→위)
+  let hit = false;
+  for (const p of phys) {
+    const px = p.baseX + p.x, py = p.baseY + p.y;
+    const dx = px - mx, dy = py - my;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const range = 70 + p.size / 2;
+    if (dist < range && dist > 0.01) {
+      const k = (1 - dist / range) * 5.5;
+      p.vx += (dx / dist) * k;
+      p.vy += (dy / dist) * k;
+      if (k > 2.2) hit = true;
+    }
+  }
+  if (hit) rustle(0.22);
+}
+binWrap.addEventListener("pointermove", e => repel(e.clientX, e.clientY));
+
+// 물리 틱
+function stepPhysics() {
+  for (const p of phys) {
+    // 제자리로 돌아가는 스프링 + 감쇠
+    p.vx += -p.x * 0.025;
+    p.vy += -p.y * 0.025;
+    p.vx *= 0.90; p.vy *= 0.90;
+    p.x += p.vx; p.y += p.vy;
+    // 벽 튕기기
+    const px = p.baseX + p.x, py = p.baseY + p.y, r = p.size / 2;
+    if (px < r) { p.x += (r - px); p.vx = Math.abs(p.vx) * 0.7; }
+    if (px > WRAP_W - r) { p.x -= (px - (WRAP_W - r)); p.vx = -Math.abs(p.vx) * 0.7; }
+    if (py < r + 6) { p.y += (r + 6 - py); p.vy = Math.abs(p.vy) * 0.6; }
+    if (py > WRAP_H - r) { p.y -= (py - (WRAP_H - r)); p.vy = -Math.abs(p.vy) * 0.6; }
+    p.el.style.transform = "translate(" + p.x + "px," + (-p.y) + "px) rotate(" + (p.rot + p.x * 1.2) + "deg)";
+  }
+}
+function tick() { stepPhysics(); requestAnimationFrame(tick); }
+requestAnimationFrame(tick);
+
+// ── 쓰기/버리기 ──
+function openWrite() { document.getElementById("writeSheet").classList.add("show"); }
+function closeWrite() { document.getElementById("writeSheet").classList.remove("show"); }
+
+function throwIt() {
+  const text = document.getElementById("text").value.trim();
+  if (!text) { alert("버릴 게 있어야 버리죠! 뭐라도 적어주세요 😄"); return; }
+  const item = { id: Date.now() + "" + Math.floor(Math.random() * 1000), text: text, ts: Date.now() };
+  try {
+    items.push(item);
+    localStorage.setItem(KEY, JSON.stringify(items));
+  } catch (e) {
+    items.pop();
+    alert("저장 공간이 가득 찼어요! 쓰레기통을 한번 비워주세요 🙏");
+    return;
+  }
+  document.getElementById("text").value = "";
+  closeWrite();
+  flyPaper(item);
+}
+
+function flyPaper(item) {
+  const p = document.createElement("div");
+  p.className = "paper-fly";
+  p.textContent = item.text.slice(0, 80);
+  document.body.appendChild(p);
+  const start = { x: window.innerWidth / 2 - 90, y: window.innerHeight - 200 };
+  const binRect = binWrap.getBoundingClientRect();
+  const end = { x: binRect.left + binRect.width / 2 - 24, y: binRect.top + binRect.height / 2 };
+  p.style.left = start.x + "px"; p.style.top = start.y + "px";
+  let done = false;
+  const finish = () => { if (done) return; done = true; p.remove(); rustle(0.4); render(); };
+  p.animate([
+    { transform: "translate(0,0) rotate(0deg) scale(1)", borderRadius: "8px", offset: 0 },
+    { transform: "translate(0,-40px) rotate(-6deg) scale(.6)", borderRadius: "30%", offset: 0.35 },
+    { transform: "translate(" + (end.x - start.x) + "px," + (end.y - start.y) + "px) rotate(340deg) scale(.22)", borderRadius: "50%", offset: 1 }
+  ], { duration: 850, easing: "cubic-bezier(.5,-0.2,.7,1)" }).onfinish = finish;
+  setTimeout(finish, 1000); // 탭 비활성 시 애니메이션 이벤트 누락 대비
+}
+
+// ── 열람 ──
+function openView(id) {
+  const it = items.find(x => x.id === id);
+  if (!it) return;
+  const d = new Date(it.ts);
+  document.getElementById("viewDate").textContent = d.getFullYear() + "." + (d.getMonth() + 1) + "." + d.getDate() + "에 버림";
+  document.getElementById("viewText").textContent = it.text;
+  document.getElementById("viewSheet").classList.add("show");
+}
+function closeView() { document.getElementById("viewSheet").classList.remove("show"); }
+
+// ── 비우기 ──
+function openEmpty() {
+  document.getElementById("emptyCount").textContent = items.length;
+  document.getElementById("emptySheet").classList.add("show");
+}
+function closeEmpty() { document.getElementById("emptySheet").classList.remove("show"); }
+function emptyBin() {
+  closeEmpty();
+  const balls = document.querySelectorAll(".ball");
+  balls.forEach((b, i) => {
+    b.animate([
+      { opacity: 1 },
+      { opacity: 0 }
+    ], { duration: 350, delay: i * 60, easing: "ease-in", fill: "forwards" });
+  });
+  setTimeout(() => {
+    items = [];
+    localStorage.removeItem(KEY);
+    render();
+  }, 400 + balls.length * 60);
+}
+
+render();
+</script>
+</body>
+</html>
