@@ -138,6 +138,9 @@
   .s-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 11.5px; color: var(--sub); font-weight: 600; padding: 0; }
   .s-btn .ico { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--bg); border: 1.5px solid var(--line); transition: transform .12s ease; }
   .s-btn:active .ico { transform: scale(.92); }
+  .nick-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 15px; margin-bottom: 8px; background: var(--bg); color: var(--ink); }
+  .nick-input:focus { outline: none; border-color: var(--accent); }
+  .rec-msg { font-size: 13px; min-height: 18px; margin-bottom: 10px; color: var(--accent); font-weight: 700; text-align: center; }
 </style>
 </head>
 <body>
@@ -189,6 +192,7 @@
     </div>
     <div class="actions">
       <button class="btn" onclick="shareResult()">결과 공유하기 💤</button>
+      <button class="btn ghost" onclick="openRec()">📝 닉네임으로 기록 남기기</button>
       <a class="btn ghost" href="../">🐾 다음 테스트: 나는 사무실에서 무슨 동물일까?</a>
       <button class="btn ghost" onclick="location.reload()">다시 해보기</button>
     </div>
@@ -209,6 +213,15 @@
       <button class="s-btn" onclick="systemShare()"><span class="ico">📲</span>기기 공유창</button>
       <button class="s-btn" onclick="closeSheet()"><span class="ico">✖️</span>닫기</button>
     </div>
+  </div>
+</div>
+<div class="sheet-mask" id="recsheet" onclick="if(event.target===this)closeRec()">
+  <div class="sheet">
+    <h3>📝 닉네임으로 기록 남기기</h3>
+    <input id="nickInput" class="nick-input" maxlength="20" placeholder="닉네임 (한글/영문/숫자 1~20자)">
+    <div class="rec-msg" id="recMsg"></div>
+    <button class="btn" id="recBtn" onclick="saveRecord()">기록 저장하기</button>
+    <a class="btn ghost" href="../records/" style="margin-top:10px">내 기록 보러 가기 🐾</a>
   </div>
 </div>
 <div class="toast" id="toast">링크가 복사됐어요! 백수 친구에게 보내보세요 💤</div>
@@ -398,6 +411,56 @@ async function systemShare() {
   const d = _shareData();
   if (navigator.share) { try { await navigator.share({ title: document.title, text: d.text, url: d.url }); } catch (e) {} closeSheet(); }
   else { copyLink(); }
+}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// 닉네임 기록 (Firebase Firestore)
+firebase.initializeApp({
+  apiKey: "AIzaSyDt_LHbcYOVfLBM4T2JTDD1aCGT1A22BqM",
+  authDomain: "testhome-40b4b.firebaseapp.com",
+  projectId: "testhome-40b4b",
+  storageBucket: "testhome-40b4b.firebasestorage.app",
+  messagingSenderId: "109198030226",
+  appId: "1:109198030226:web:d9d19f5ce66f353d37bd4b"
+});
+const _db = firebase.firestore();
+const TEST_ID = "jobless-ko";
+function openRec() {
+  const saved = localStorage.getItem("zooNick");
+  if (saved) document.getElementById("nickInput").value = saved;
+  document.getElementById("recMsg").textContent = "";
+  document.getElementById("recsheet").classList.add("show");
+}
+function closeRec() { document.getElementById("recsheet").classList.remove("show"); }
+async function saveRecord() {
+  const nick = document.getElementById("nickInput").value.trim();
+  const msg = document.getElementById("recMsg");
+  const btn = document.getElementById("recBtn");
+  if (!/^[0-9A-Za-z가-힣_-]{1,20}$/.test(nick)) { msg.textContent = "닉네임은 한글/영문/숫자 1~20자로 해주세요!"; return; }
+  const name = document.getElementById("r-name").textContent;
+  if (!name) { msg.textContent = "테스트 결과가 있어야 기록할 수 있어요!"; return; }
+  btn.disabled = true; msg.textContent = "저장 중...";
+  try {
+    try {
+      await _db.collection("nicknames").doc(nick).set({ createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    } catch (e) {
+      if (localStorage.getItem("zooNick") !== nick && !confirm("이미 등록된 닉네임이에요. 본인 닉네임이 맞나요?")) { btn.disabled = false; msg.textContent = ""; return; }
+    }
+    await _db.collection("results").add({
+      nickname: nick, test: TEST_ID,
+      resultName: name,
+      emoji: document.getElementById("r-emoji").textContent,
+      nick2: document.getElementById("r-nick").textContent,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    localStorage.setItem("zooNick", nick);
+    msg.textContent = "기록 완료! ✅ 내 기록에서 확인해보세요";
+  } catch (e) {
+    msg.textContent = "저장에 실패했어요… 잠시 후 다시 시도해주세요";
+  }
+  btn.disabled = false;
 }
 </script>
 </body>
