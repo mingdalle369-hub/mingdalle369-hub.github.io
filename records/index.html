@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 기록 🐾 — 오피스 동물원</title>
+<meta name="description" content="닉네임으로 저장한 나의 테스트 결과 기록 모아보기">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --ink: #3D3229;
+    --sub: #8A7B6C;
+    --accent: #FF8A5C;
+    --accent-soft: #FFE3D6;
+    --line: #F0E4D7;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+  }
+  .app { width: 100%; max-width: 440px; padding: 24px 20px 48px; position: relative; }
+  .lang {
+    position: absolute; top: 18px; right: 20px;
+    font-size: 12px; font-weight: 700; color: var(--sub);
+    text-decoration: none; border: 1.5px solid var(--line);
+    padding: 4px 10px; border-radius: 99px; background: var(--card);
+  }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 30px 0 6px; text-align: center; }
+  p.desc { color: var(--sub); font-size: 14px; text-align: center; margin-bottom: 26px; }
+  .searchbar { display: flex; gap: 8px; margin-bottom: 24px; }
+  .nick-input {
+    flex: 1; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 12px;
+    font-family: inherit; font-size: 15px; background: var(--card); color: var(--ink);
+  }
+  .nick-input:focus { outline: none; border-color: var(--accent); }
+  .go {
+    border: none; cursor: pointer; background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    padding: 0 20px; border-radius: 12px;
+  }
+  .status { text-align: center; font-size: 14px; color: var(--sub); margin-bottom: 18px; min-height: 20px; }
+  .rec {
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 18px;
+    padding: 16px 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px;
+  }
+  .rec .e { font-size: 38px; line-height: 1; }
+  .rec .info { flex: 1; }
+  .rec .test { font-size: 11.5px; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+  .rec .name { font-size: 17px; font-weight: 800; }
+  .rec .nick2 { font-size: 12.5px; color: var(--sub); }
+  .rec .date { font-size: 11px; color: var(--sub); white-space: nowrap; align-self: flex-start; margin-top: 2px; }
+  .cta { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+  .btn {
+    display: block; width: 100%; border: none; cursor: pointer; text-align: center; text-decoration: none;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 15.5px; font-weight: 700;
+    padding: 15px; border-radius: 14px;
+  }
+  .btn.ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); }
+  footer { margin-top: 36px; text-align: center; font-size: 12px; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="lang" href="../en/records/">🇺🇸 EN</a>
+  <h1>내 기록 🐾</h1>
+  <p class="desc">닉네임으로 저장한 테스트 결과를 모아봐요</p>
+
+  <div class="searchbar">
+    <input id="nickInput" class="nick-input" maxlength="20" placeholder="닉네임 입력">
+    <button class="go" onclick="loadRecords()">조회</button>
+  </div>
+  <div class="status" id="status"></div>
+  <div id="list"></div>
+
+  <div class="cta">
+    <a class="btn" href="../">🐕 오피스 동물상 테스트 하러 가기</a>
+    <a class="btn ghost" href="../jobless/">🦥 백수 동물상 테스트 하러 가기</a>
+  </div>
+
+  <footer>© 2026 오피스 동물원 · 재미로 보는 테스트예요!</footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyDt_LHbcYOVfLBM4T2JTDD1aCGT1A22BqM",
+  authDomain: "testhome-40b4b.firebaseapp.com",
+  projectId: "testhome-40b4b",
+  storageBucket: "testhome-40b4b.firebasestorage.app",
+  messagingSenderId: "109198030226",
+  appId: "1:109198030226:web:d9d19f5ce66f353d37bd4b"
+});
+const _db = firebase.firestore();
+const TEST_LABEL = {
+  "office-ko": "오피스 동물상",
+  "jobless-ko": "백수 동물상",
+  "office-en": "Office Animal (EN)",
+  "jobless-en": "Funemployed (EN)"
+};
+
+async function loadRecords() {
+  const nick = document.getElementById("nickInput").value.trim();
+  const status = document.getElementById("status");
+  const list = document.getElementById("list");
+  if (!nick) { status.textContent = "닉네임을 입력해주세요!"; return; }
+  status.textContent = "불러오는 중...";
+  list.innerHTML = "";
+  try {
+    const snap = await _db.collection("results").where("nickname", "==", nick).get();
+    if (snap.empty) { status.textContent = "「" + nick + "」의 기록이 아직 없어요. 테스트하고 기록을 남겨보세요!"; return; }
+    const rows = [];
+    snap.forEach(doc => rows.push(doc.data()));
+    rows.sort((a, b) => (b.createdAt && b.createdAt.seconds || 0) - (a.createdAt && a.createdAt.seconds || 0));
+    status.textContent = "「" + nick + "」의 기록 " + rows.length + "개 🐾";
+    rows.forEach(r => {
+      const d = document.createElement("div");
+      d.className = "rec";
+      const date = r.createdAt ? new Date(r.createdAt.seconds * 1000) : null;
+      const dateStr = date ? (date.getFullYear() + "." + (date.getMonth()+1) + "." + date.getDate()) : "";
+      d.innerHTML = '<div class="e"></div><div class="info"><div class="test"></div><div class="name"></div><div class="nick2"></div></div><div class="date"></div>';
+      d.querySelector(".e").textContent = r.emoji || "🐾";
+      d.querySelector(".test").textContent = TEST_LABEL[r.test] || r.test;
+      d.querySelector(".name").textContent = r.resultName || "";
+      d.querySelector(".nick2").textContent = r.nick2 || "";
+      d.querySelector(".date").textContent = dateStr;
+      list.appendChild(d);
+    });
+    localStorage.setItem("zooNick", nick);
+  } catch (e) {
+    status.textContent = "불러오기에 실패했어요… 잠시 후 다시 시도해주세요";
+  }
+}
+
+const saved = localStorage.getItem("zooNick");
+if (saved) { document.getElementById("nickInput").value = saved; loadRecords(); }
+document.getElementById("nickInput").addEventListener("keydown", e => { if (e.key === "Enter") loadRecords(); });
+</script>
+</body>
+</html>
