@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 집 🏠 — 오피스 동물원</title>
+<meta name="description" content="닉네임으로 집을 만들면, 내 테스트 결과 친구들이 집 안을 돌아다녀요.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --ink: #3D3229;
+    --sub: #8A7B6C;
+    --accent: #FF8A5C;
+    --accent-soft: #FFE3D6;
+    --line: #F0E4D7;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+  }
+  .app { width: 100%; max-width: 440px; padding: 24px 20px 48px; position: relative; }
+  .hero { text-align: center; margin: 26px 0 6px; }
+  .hero .house { font-size: 64px; line-height: 1.2; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 8px 0 4px; text-align: center; }
+  p.desc { color: var(--sub); font-size: 14px; text-align: center; margin-bottom: 22px; }
+
+  .nick-input {
+    width: 100%; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 12px;
+    font-family: inherit; font-size: 15px; background: var(--card); color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .nick-input:focus { outline: none; border-color: var(--accent); }
+  .msg { font-size: 13px; min-height: 18px; margin-bottom: 10px; color: var(--accent); font-weight: 700; text-align: center; }
+  .btn {
+    display: block; width: 100%; border: none; cursor: pointer; text-align: center; text-decoration: none;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 16px; font-weight: 700;
+    padding: 15px; border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(255,138,92,.3);
+    transition: transform .12s ease;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn.ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); box-shadow: none; }
+  .hint { font-size: 12px; color: var(--sub); text-align: center; margin-top: 10px; }
+
+  /* 메뉴 그리드 */
+  .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0 10px; }
+  .menu a {
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+    padding: 16px 12px; text-align: center; text-decoration: none; color: var(--ink);
+    font-size: 13.5px; font-weight: 700;
+    transition: transform .12s ease;
+  }
+  .menu a:active { transform: scale(.96); }
+  .menu a .mi { display: block; font-size: 28px; margin-bottom: 4px; }
+
+  /* ── 집 안 (거실) ── */
+  .room {
+    position: relative; height: 290px; border-radius: 20px; overflow: hidden;
+    border: 1.5px solid var(--line); margin-bottom: 16px;
+    background: linear-gradient(180deg, #FFF3E4 0%, #FFEDD8 60%, #EBD7BB 60%, #E2CCAC 100%);
+  }
+  .deco { position: absolute; pointer-events: none; }
+  .deco.window { top: 24px; left: 28px; font-size: 42px; }
+  .deco.frame { top: 30px; right: 40px; font-size: 30px; }
+  .deco.plant { bottom: 96px; right: 20px; font-size: 32px; }
+  .deco.lamp { bottom: 96px; left: 20px; font-size: 32px; }
+  .rug {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    width: 170px; height: 52px; border-radius: 50%;
+    background: rgba(255,138,92,.18); border: 2px dashed rgba(255,138,92,.28);
+    pointer-events: none;
+  }
+  .room-empty {
+    position: absolute; top: 44%; left: 20px; right: 20px; text-align: center;
+    color: var(--sub); font-size: 13px; pointer-events: none;
+  }
+  .pet {
+    position: absolute; bottom: 0; left: 0; cursor: pointer;
+    user-select: none; -webkit-user-select: none; will-change: transform;
+    line-height: 1;
+  }
+  .pet .em { display: inline-block; }
+  .bubble {
+    position: absolute; display: none; z-index: 30;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 6px 12px; font-size: 12px; font-weight: 700; white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(61,50,41,.12);
+    transform: translateX(-50%);
+  }
+  .logout {
+    display: block; margin: 12px auto 0; border: none; background: none; cursor: pointer;
+    font-family: inherit; font-size: 12.5px; color: var(--sub); font-weight: 700; text-decoration: underline;
+  }
+  footer { margin-top: 36px; text-align: center; font-size: 12px; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 로그인 전: 집 만들기 -->
+  <section id="guest" style="display:none">
+    <div class="hero"><div class="house">🏚️</div></div>
+    <h1>아직 집이 없네요!</h1>
+    <p class="desc">닉네임으로 나만의 집을 만들면<br>테스트 결과 친구들이 집 안을 돌아다녀요.</p>
+    <input id="nickInput" class="nick-input" maxlength="20" placeholder="닉네임 (한글/영문/숫자 1~20자)">
+    <div class="msg" id="guestMsg"></div>
+    <button class="btn" id="joinBtn" onclick="makeHome()">회원가입하고 집 만들기 🏡</button>
+    <p class="hint">이미 집이 있다면? 그 닉네임을 입력하면 그대로 들어와져요.</p>
+    <div class="menu" style="margin-top:26px">
+      <a href="../"><span class="mi">🐕</span>오피스 동물상</a>
+      <a href="../jobless/"><span class="mi">🦥</span>백수 동물상</a>
+      <a href="../trash/"><span class="mi">🗑️</span>감정 쓰레기통</a>
+      <a href="../records/"><span class="mi">📜</span>기록 조회</a>
+    </div>
+  </section>
+
+  <!-- 로그인 후: 내 집 (거실) -->
+  <section id="my" style="display:none">
+    <h1 id="myTitle" style="margin-top:34px"></h1>
+    <p class="desc">결과 친구들이 집 안을 돌아다니고 있어요. 톡 건드려 보세요!</p>
+    <div class="room" id="room">
+      <div class="deco window">🪟</div>
+      <div class="deco frame">🖼️</div>
+      <div class="deco lamp">🕯️</div>
+      <div class="deco plant">🪴</div>
+      <div class="rug"></div>
+      <div class="room-empty" id="roomEmpty" style="display:none"></div>
+      <div id="pets"></div>
+      <div class="bubble" id="bubble"></div>
+    </div>
+    <div class="menu">
+      <a href="../"><span class="mi">🐕</span>오피스 동물상</a>
+      <a href="../jobless/"><span class="mi">🦥</span>백수 동물상</a>
+      <a href="../trash/"><span class="mi">🗑️</span>감정 쓰레기통</a>
+      <a href="../records/"><span class="mi">📜</span>기록 조회</a>
+    </div>
+    <button class="logout" onclick="logout()">다른 닉네임으로 들어가기</button>
+  </section>
+
+  <footer>© 2026 오피스 동물원 · 재미로 보는 테스트예요!</footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyDt_LHbcYOVfLBM4T2JTDD1aCGT1A22BqM",
+  authDomain: "testhome-40b4b.firebaseapp.com",
+  projectId: "testhome-40b4b",
+  storageBucket: "testhome-40b4b.firebasestorage.app",
+  messagingSenderId: "109198030226",
+  appId: "1:109198030226:web:d9d19f5ce66f353d37bd4b"
+});
+const _db = firebase.firestore();
+const TEST_LABEL = {
+  "office-ko": "오피스 동물상",
+  "jobless-ko": "백수 동물상",
+  "office-en": "Office Animal (EN)",
+  "jobless-en": "Funemployed (EN)"
+};
+
+function show(mode) {
+  document.getElementById("guest").style.display = mode === "guest" ? "block" : "none";
+  document.getElementById("my").style.display = mode === "my" ? "block" : "none";
+}
+
+async function makeHome() {
+  const nick = document.getElementById("nickInput").value.trim();
+  const msg = document.getElementById("guestMsg");
+  const btn = document.getElementById("joinBtn");
+  if (!/^[0-9A-Za-z가-힣_-]{1,20}$/.test(nick)) { msg.textContent = "닉네임은 한글/영문/숫자 1~20자로 해주세요!"; return; }
+  btn.disabled = true; msg.textContent = "집 짓는 중...";
+  let isNew = false;
+  try {
+    await _db.collection("nicknames").doc(nick).set({ createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    isNew = true;
+  } catch (e) {
+    // 이미 존재하는 닉네임 → 그 집으로 입장
+  }
+  localStorage.setItem("zooNick", nick);
+  btn.disabled = false;
+  enterHome(nick, isNew);
+}
+
+async function enterHome(nick, isNew) {
+  show("my");
+  document.getElementById("myTitle").textContent = nick + "님의 집 🏠";
+  const empty = document.getElementById("roomEmpty");
+  empty.style.display = "block";
+  empty.textContent = isNew ? "새 집 완성! 🏡 테스트 결과를 기록하면 친구들이 이사 와요" : "친구들 부르는 중...";
+  try {
+    const snap = await _db.collection("results").where("nickname", "==", nick).get();
+    const rows = [];
+    snap.forEach(doc => rows.push(doc.data()));
+    if (!rows.length) {
+      if (!isNew) empty.textContent = "아직 아무도 없어요. 테스트하고 기록을 남기면 친구들이 이사 와요! 🛋️";
+      spawnPets([]);
+      return;
+    }
+    empty.style.display = "none";
+    rows.sort((a, b) => (b.createdAt && b.createdAt.seconds || 0) - (a.createdAt && a.createdAt.seconds || 0));
+    spawnPets(rows.slice(0, 12));
+  } catch (e) {
+    empty.textContent = "친구들을 못 불러왔어요… 잠시 후 다시 시도해주세요";
+  }
+}
+
+// ── 집 안 돌아다니는 펫 ──
+const pets = [];
+let frame = 0;
+function spawnPets(rows) {
+  const area = document.getElementById("pets");
+  area.innerHTML = "";
+  pets.length = 0;
+  const room = document.getElementById("room");
+  const W = room.clientWidth || 396;
+  rows.forEach((r, i) => {
+    const el = document.createElement("div");
+    el.className = "pet";
+    const em = document.createElement("span");
+    em.className = "em";
+    em.textContent = r.emoji || "🐾";
+    el.appendChild(em);
+    const depth = Math.random();                 // 0 = 안쪽(멀리), 1 = 앞(가까이)
+    const size = 30 + depth * 16;
+    el.style.fontSize = size + "px";
+    el.style.zIndex = 10 + Math.floor(depth * 10);
+    const p = {
+      el: el, em: em, data: r,
+      x: 20 + Math.random() * (W - 60),
+      floorY: 8 + (1 - depth) * 64,
+      target: 0, dir: 1,
+      speed: 0.25 + Math.random() * 0.35,
+      pause: Math.floor(Math.random() * 120),
+      phase: Math.random() * Math.PI * 2,
+      W: W, size: size
+    };
+    p.target = newTarget(p);
+    el.addEventListener("click", () => showBubble(p));
+    pets.push(p);
+    area.appendChild(el);
+  });
+}
+function newTarget(p) {
+  return 14 + Math.random() * (p.W - p.size - 28);
+}
+function stepRoam() {
+  frame++;
+  for (const p of pets) {
+    if (p.pause > 0) {
+      p.pause--;
+      if (p.pause === 0) p.target = newTarget(p);
+    } else {
+      const d = p.target - p.x;
+      if (Math.abs(d) < 2) {
+        p.pause = 60 + Math.floor(Math.random() * 240);   // 잠깐 멍때리기
+      } else {
+        p.dir = d > 0 ? 1 : -1;
+        p.x += p.speed * p.dir;
+      }
+    }
+    const walking = p.pause === 0;
+    const hop = walking ? Math.abs(Math.sin(frame * 0.15 + p.phase)) * 4 : 0;
+    const breathe = walking ? 1 : 1 + Math.sin(frame * 0.05 + p.phase) * 0.03;
+    // 대부분의 동물 이모지는 왼쪽을 보므로, 오른쪽으로 갈 때 뒤집기
+    const flip = p.dir > 0 ? -1 : 1;
+    p.el.style.transform = "translate(" + p.x + "px," + (-p.floorY - hop) + "px)";
+    p.em.style.transform = "scaleX(" + flip + ") scale(" + breathe + ")";
+  }
+  requestAnimationFrame(stepRoam);
+}
+requestAnimationFrame(stepRoam);
+
+let bubbleTimer = null;
+function showBubble(p) {
+  const b = document.getElementById("bubble");
+  const label = TEST_LABEL[p.data.test] || p.data.test;
+  b.textContent = (p.data.resultName || "🐾") + " · " + label;
+  b.style.display = "block";
+  b.style.left = (p.x + p.size / 2) + "px";
+  const room = document.getElementById("room");
+  b.style.top = Math.max(6, room.clientHeight - p.floorY - p.size - 34) + "px";
+  clearTimeout(bubbleTimer);
+  bubbleTimer = setTimeout(() => { b.style.display = "none"; }, 1800);
+  // 놀라서 폴짝
+  p.pause = 0;
+  p.target = newTarget(p);
+}
+
+function logout() {
+  localStorage.removeItem("zooNick");
+  document.getElementById("nickInput").value = "";
+  document.getElementById("guestMsg").textContent = "";
+  show("guest");
+}
+
+// 시작
+const saved = localStorage.getItem("zooNick");
+if (saved) { enterHome(saved, false); } else { show("guest"); }
+document.getElementById("nickInput").addEventListener("keydown", e => { if (e.key === "Enter") makeHome(); });
+</script>
+</body>
+</html>
